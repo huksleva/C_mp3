@@ -8,7 +8,7 @@ void setZero(char *m, int size) {
     }
 } ///заполняет нулями
 void RandW(char *s1, char *s2, int sizeS2, char *mass) {
-    //переводим указатель с первого символа на символ после =
+    //переводит указатель с первого символа на символ после =
     char *ch = strstr(s1, s2) + sizeS2;
     int ind = 0;
     while ((*ch != ' ') && (*ch != '\0')) {
@@ -20,12 +20,12 @@ typedef struct {
     char version[2];
     char flags[1];
     char size[4];
-} ID3v2; ///читай документацию по ID3v2
+} ID3v2; ///хэдер
 typedef struct {
     char id[4];
     char size[4];
     char flags[2];
-} frame; ///читай документацию по ID3v2
+} frame; ///фрейм
 int getSize(const char *size) {
     return (size[0] << 21) | (size[1] << 14) | (size[2] << 7) | size[3];
 } ///возвращает размер значения тега или хедера (size)
@@ -48,7 +48,9 @@ void ShowFrames(FILE *f) {
 
         printf("Parameter: %s\n", frame.id);
         printf("Value: ");
-        for (int i = 0; i < getSize(frame.size); ++i) { printf("%c", getc(f)); }
+        for (int i = 0; i < getSize(frame.size); ++i) {
+            printf("%c", getc(f));
+        }
         printf("\n\n");
     }
 } ///показывает все метаданные mp3 файла
