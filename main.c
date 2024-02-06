@@ -97,18 +97,26 @@ void ReplaceFrame(FILE *f, char *path, char *par, char *replacement) {
 
         ///если находим нужный тег
         if (strstr(frame.id, par) != NULL) {
-            fwrite(&frame, sizeof(frame), 1, f2); //записываем
-
+            int new_size = (int) strlen(replacement) + 1;
+            ///вводим новый размер фрейма
+            frame.size[0] = (char) ((new_size >> 21) & 0xFF);
+            frame.size[1] = (char) ((new_size >> 14) & 0xFF);
+            frame.size[2] = (char) ((new_size >> 7) & 0xFF);
+            frame.size[3] = (char) (new_size & 0xFF);
+            printf("%d %s\n", getSize(frame.size), frame.id);
             ///записываем в f2 новое значения тега
-            for (int i = 0; i < strlen(replacement); ++i){
-                putc(replacement[i], f2);
-            }
+            fwrite(&frame, sizeof(frame), 1, f2);
+            fwrite(replacement, new_size, 1, f2);
+            //проблемы после записи этого фрейма
+
+
             ///пропускаем тег в f
             for (int i = 0; i < getSize(frame.size); ++i) {
                 getc(f);
             }
         }
         else {
+            printf("%d %s\n", getSize(frame.size), frame.id);
             fwrite(&frame, sizeof(frame), 1, f2); //записываем
             for (int i = 0; i < getSize(frame.size); ++i) {
                 putc(getc(f), f2);
@@ -116,7 +124,6 @@ void ReplaceFrame(FILE *f, char *path, char *par, char *replacement) {
         }
         count += sizeof(frame) + getSize(frame.size); //прибавляем к счётчику
     }
-
 
 
     ///теперь дописываем сам аудиофайл
@@ -127,7 +134,6 @@ void ReplaceFrame(FILE *f, char *path, char *par, char *replacement) {
 
     ///закрываем все файлы
     fclose(f);
-    fclose(f2);
 
     ///удаляем старый
     remove(path);
@@ -171,6 +177,6 @@ int main(int argc, char **argv) {
     fclose(f);
     return 0;
 }
-//main.exe --filepath=Song.mp3 --set=TIT2 --value=ABC
-//main.exe --filepath=Song.mp3 --show
-//main.exe --filepath=Song.mp3 --get=TIT2
+//untitled2.exe --filepath=Song.mp3 --set=TIT2 --value=ABC
+//untitled2.exe --filepath=Song.mp3 --show
+//untitled2.exe --filepath=Song.mp3 --get=TIT2
